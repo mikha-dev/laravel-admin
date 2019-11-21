@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 
 class Select extends Field
 {
+
+    private $allowSelectAll = false;
     /**
      * @var array
      */
@@ -215,7 +217,8 @@ EOT;
      */
     public function model($model, $idField = 'id', $textField = 'name')
     {
-        if (!class_exists($model)
+        if (
+            !class_exists($model)
             || !in_array(Model::class, class_parents($model))
         ) {
             throw new \InvalidArgumentException("[$model] must be a valid model class");
@@ -256,7 +259,7 @@ EOT;
     protected function loadRemoteOptions($url, $parameters = [], $options = [])
     {
         $ajaxOptions = [
-            'url' => $url.'?'.http_build_query($parameters),
+            'url' => $url . '?' . http_build_query($parameters),
         ];
         $configs = array_merge([
             'allowClear'         => true,
@@ -370,6 +373,10 @@ EOT;
         return $this;
     }
 
+    public function allowSelectAll() {
+        $this->allowSelectAll = true;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -405,16 +412,90 @@ EOT;
     {
         $configs = array_merge([
             'allowClear'  => true,
-            'placeholder' => [
-                'id'   => '',
-                'text' => $this->label,
-            ],
+            'placeholder' => $this->label,
         ], $this->config);
 
         $configs = json_encode($configs);
 
         if (empty($this->script)) {
-            $this->script = "$(\"{$this->getElementClassSelector()}\").select2($configs);";
+            if (!$this->allowSelectAll)
+                $this->script = "$(\"{$this->getElementClassSelector()}\").select2($configs);";
+            else {
+                $configs = substr($configs, 1, strlen($configs) - 2);
+
+                $this->script = <<<EOT
+                $.fn.select2.amd.require([
+                    'select2/utils',
+                    'select2/dropdown',
+                    'select2/dropdown/attachBody'
+                ], function (Utils, Dropdown, AttachBody) {
+                  function SelectAll() { }
+          
+                  SelectAll.prototype.render = function (decorated) {
+                      var rendered = decorated.call(this);
+                      var self = this;
+          
+                      var selectAll = $(
+                          '<span class="select2-results__option select-all" aria-selected="false">Select All</span>');
+          
+                      rendered.find('.select2-dropdown .select2-results').append(selectAll);
+          
+                      selectAll.on('click', function (e) {
+                          var results = rendered.find('.select2-results__option[aria-selected=false]:not(.select-all)');
+          
+                          // Get all results that aren't selected
+                          results.each(function () {
+                              var result = $(this);
+          
+                              // Get the data object for it
+                              var data = result.data('data');
+          
+                              // Trigger the select event
+                              self.trigger('select', {
+                                  data: data
+                              });
+                          });
+          
+                          self.trigger('close');
+                      });
+          
+                      selectAll.on('mouseenter', function (e) {
+                          var selectedClass = 'select2-results__option--highlighted';
+                          var results = rendered.find('.select2-results__option[aria-selected=false]:not(.select-all)');
+          
+                          // Get all results that aren't selected
+                          results.each(function () {
+                              var result = $(this);
+          
+                              //remove selected class
+                              result.removeClass(selectedClass);
+                          });
+          
+                          $(this).addClass(selectedClass);
+                      });
+          
+          
+                      selectAll.on('mouseleave', function (e) {
+                          var selectedClass = 'select2-results__option--highlighted';
+          
+                          $(this).removeClass(selectedClass);
+                      });
+                      return rendered;
+                  };
+          
+                  $("{$this->getElementClassSelector()}").select2({
+                      $configs,
+                      dropdownAdapter: Utils.Decorate(
+                        Utils.Decorate(
+                          Dropdown,
+                          AttachBody
+                        ),
+                        SelectAll
+                      )
+                  });
+              });            
+            EOT;
+            }
         }
 
         if ($this->options instanceof \Closure) {
