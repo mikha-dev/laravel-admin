@@ -424,11 +424,11 @@ EOT;
             else {
                 $configs = substr($configs, 1, strlen($configs) - 2);
 
-                $this->script = "
+                $this->script = '
                 $.fn.select2.amd.require([
-                    'select2/utils',
-                    'select2/dropdown',
-                    'select2/dropdown/attachBody'
+                    \'select2/utils\',
+                    \'select2/dropdown\',
+                    \'select2/dropdown/attachBody\'
                 ], function (Utils, Dropdown, AttachBody) {
                     function SelectAll() { }
 
@@ -437,34 +437,32 @@ EOT;
                         var self = this;
 
                         var selectAll = $(
-                            '<span class=\"select2-results__option select-all\" aria-selected=\"false\">Select All</span>');
+                            \'<span class="select2-results__option select-all" aria-selected="false">Select All</span>\');
 
-                        rendered.find('.select2-dropdown .select2-results').append(selectAll);
+                        rendered.find(\'.select2-dropdown .select2-results\').append(selectAll);
 
-                        selectAll.on('click', function (e) {
-                            var results = rendered.find('.select2-results__option[aria-selected=false]:not(.select-all)');
+                        selectAll.on(\'click\', function (e) {
+                            var results = rendered.find(\'.select2-results__option[aria-selected=false]:not(.select-all)\');
 
-                            // Get all results that aren't selected
                             results.each(function () {
                                 var result = $(this);
 
                                 // Get the data object for it
-                                var data = result.data('data');
+                                var data = result.data(\'data\');
 
                                 // Trigger the select event
-                                self.trigger('select', {
+                                self.trigger(\'select\', {
                                     data: data
                                 });
                             });
 
-                            self.trigger('close');
+                            self.trigger(\'close\');
                         });
 
-                        selectAll.on('mouseenter', function (e) {
-                            var selectedClass = 'select2-results__option--highlighted';
-                            var results = rendered.find('.select2-results__option[aria-selected=false]:not(.select-all)');
+                        selectAll.on(\'mouseenter\', function (e) {
+                            var selectedClass = \'select2-results__option--highlighted\';
+                            var results = rendered.find(\'.select2-results__option[aria-selected=false]:not(.select-all)\');
 
-                            // Get all results that aren't selected
                             results.each(function () {
                                 var result = $(this);
 
@@ -476,16 +474,16 @@ EOT;
                         });
 
 
-                        selectAll.on('mouseleave', function (e) {
-                            var selectedClass = 'select2-results__option--highlighted';
+                        selectAll.on(\'mouseleave\', function (e) {
+                            var selectedClass = \'select2-results__option--highlighted\';
 
                             $(this).removeClass(selectedClass);
                         });
                         return rendered;
                     };
 
-                    $(\"{$this->getElementClassSelector()}\").select2({
-                        {$configs},
+                    $("'.$this->getElementClassSelector().'").select2({
+                        '.$configs.',
                         dropdownAdapter: Utils.Decorate(
                         Utils.Decorate(
                             Dropdown,
@@ -494,7 +492,7 @@ EOT;
                         SelectAll
                         )
                     });
-                });";
+                });';
             }
 
         }
