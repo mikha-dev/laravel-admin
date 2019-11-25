@@ -424,8 +424,7 @@ EOT;
             else {
                 $configs = substr($configs, 1, strlen($configs) - 2);
 
-                $this->script = <<<EOT
-
+                $this->script = "
                 $.fn.select2.amd.require([
                     'select2/utils',
                     'select2/dropdown',
@@ -438,7 +437,7 @@ EOT;
                         var self = this;
 
                         var selectAll = $(
-                            '<span class="select2-results__option select-all" aria-selected="false">Select All</span>');
+                            '<span class=\"select2-results__option select-all\" aria-selected=\"false\">Select All</span>');
 
                         rendered.find('.select2-dropdown .select2-results').append(selectAll);
 
@@ -485,8 +484,8 @@ EOT;
                         return rendered;
                     };
 
-                    $("{$this->getElementClassSelector()}").select2({
-                        $configs,
+                    $(\"{$this->getElementClassSelector()}\").select2({
+                        {$configs},
                         dropdownAdapter: Utils.Decorate(
                         Utils.Decorate(
                             Dropdown,
@@ -495,9 +494,7 @@ EOT;
                         SelectAll
                         )
                     });
-                });
-
-            EOT;
+                });";
             }
 
         }
