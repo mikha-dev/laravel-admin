@@ -79,7 +79,7 @@
       </div>
       <div class="row">
         <div class="col-xs-8">
-          <a class="reset_pass" href="{{route('password.request')}}">Lost your password?</a>        
+          <a class="reset_pass" href="{{route('password.request')}}">Lost your password?</a>
         </div>
       </div>
     </form>
