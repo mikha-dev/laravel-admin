@@ -21,6 +21,7 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <script src="{{ asset('vendor/kustomer/js/kustomer.js') }}" defer></script>
 </head>
 
 <body class="hold-transition {{config('admin.skin')}} {{join(' ', config('admin.layout'))}}">
@@ -61,5 +62,6 @@
 <!-- REQUIRED JS SCRIPTS -->
 {!! Admin::js() !!}
 
+@include('kustomer::kustomer')
 </body>
 </html>
