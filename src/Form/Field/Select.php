@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 class Select extends Field
 {
 
+    protected $templateState;
     private $allowSelectAll = false;
     /**
      * @var array
@@ -373,8 +374,34 @@ EOT;
         return $this;
     }
 
+    public function customItemColors($itemColors=[]) {
+
+        $map = json_encode($itemColors);
+
+        $this->templateState = '
+        templateSelection: function formatState (data, container) {
+            var colors = '.$map.';
+            if (!data.id) {
+                return data.text;
+            }
+            $(container).css("background-color", colors[data.element.value]);
+            return data.text;
+            },
+        templateResult: function formatState (data, container) {
+            var colors = '.$map.';
+            if (!data.id) {
+                return data.text;
+            }
+            $(container).css("background-color", colors[data.element.value]);
+            return data.text;
+            },';
+        return $this;
+    }
+
     public function allowSelectAll() {
         $this->allowSelectAll = true;
+
+        return $this;
     }
 
     /**
@@ -418,10 +445,11 @@ EOT;
         $configs = json_encode($configs);
 
         if (empty($this->script)) {
-            if (!$this->allowSelectAll)
+            if (!$this->allowSelectAll) {
                 $this->script = "$(\"{$this->getElementClassSelector()}\").select2($configs);";
 
-            else {
+            } else {
+
                 $configs = substr($configs, 1, strlen($configs) - 2);
 
                 $this->script = '
@@ -483,8 +511,9 @@ EOT;
                     };
 
                     $("'.$this->getElementClassSelector().'").select2({
-                        '.$configs.',
-                        dropdownAdapter: Utils.Decorate(
+                        '.$configs.','.
+                        $this->templateState.
+                        'dropdownAdapter: Utils.Decorate(
                         Utils.Decorate(
                             Dropdown,
                             AttachBody

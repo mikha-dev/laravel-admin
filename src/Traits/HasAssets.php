@@ -161,7 +161,7 @@ trait HasAssets
             return self::$js = array_merge(self::$js, (array) $js);
         }
 
-        if (!$js = static::getMinifiedJs()) {
+        if ($js != static::getMinifiedJs()) {
             $js = array_merge(static::baseJs(), static::$js);
         }
 

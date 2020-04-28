@@ -7,11 +7,10 @@ use Encore\Admin\Exception\Handler;
 use Encore\Admin\Grid\Column;
 use Encore\Admin\Grid\Concerns;
 use Encore\Admin\Grid\Displayers;
-use Encore\Admin\Grid\Exporter;
-use Encore\Admin\Grid\Exporters\AbstractExporter;
 use Encore\Admin\Grid\Model;
 use Encore\Admin\Grid\Row;
 use Encore\Admin\Grid\Tools;
+use Encore\Admin\Traits\ShouldSnakeAttributes;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Relations;
 use Illuminate\Support\Collection;
@@ -33,6 +32,8 @@ class Grid
         Concerns\HasSelector,
         Concerns\CanHidesColumns,
         Concerns\CanFixColumns,
+        Concerns\CanExportGrid,
+        ShouldSnakeAttributes,
         Macroable {
             __call as macroCall;
         }
@@ -108,13 +109,6 @@ class Grid
     protected $keyName = 'id';
 
     /**
-     * Export driver.
-     *
-     * @var string
-     */
-    protected $exporter;
-
-    /**
      * View for grid to render.
      *
      * @var string
@@ -183,8 +177,6 @@ class Grid
 
         $this->initialize();
 
-        $this->handleExportRequest();
-
         $this->callInitCallbacks();
     }
 
@@ -224,45 +216,6 @@ class Grid
         foreach (static::$initCallbacks as $callback) {
             call_user_func($callback, $this);
         }
-    }
-
-    /**
-     * Handle export request.
-     *
-     * @param bool $forceExport
-     */
-    protected function handleExportRequest($forceExport = false)
-    {
-        if (!$scope = request(Exporter::$queryName)) {
-            return;
-        }
-
-        // clear output buffer.
-        if (ob_get_length()) {
-            ob_end_clean();
-        }
-
-        $this->model()->usePaginate(false);
-
-        if ($this->builder) {
-            call_user_func($this->builder, $this);
-
-            $this->getExporter($scope)->export();
-        }
-
-        if ($forceExport) {
-            $this->getExporter($scope)->export();
-        }
-    }
-
-    /**
-     * @param string $scope
-     *
-     * @return AbstractExporter
-     */
-    protected function getExporter($scope)
-    {
-        return (new Exporter($this))->resolve($this->exporter)->withScope($scope);
     }
 
     /**
@@ -364,6 +317,16 @@ class Grid
     }
 
     /**
+     * Get all columns object.
+     *
+     * @return Collection
+     */
+    public function getColumns()
+    {
+        return $this->columns;
+    }
+
+    /**
      * Add a relation column to grid.
      *
      * @param string $name
@@ -385,7 +348,7 @@ class Grid
             return $this;
         }
 
-        $name = Str::snake($relation).'.'.$column;
+        $name = ($this->shouldSnakeAttributes() ? Str::snake($relation) : $relation).'.'.$column;
 
         $this->model()->with($relation);
 
@@ -544,7 +507,7 @@ class Grid
     /**
      * @return array|Collection|mixed
      */
-    protected function applyQuery()
+    public function applyQuery()
     {
         $this->applyQuickSearch();
 
@@ -553,8 +516,6 @@ class Grid
         $this->applyColumnSearch();
 
         $this->applySelectorQuery();
-
-        return $this->applyFilter(false);
     }
 
     /**
@@ -580,7 +541,9 @@ class Grid
             return;
         }
 
-        $collection = $this->applyQuery();
+        $this->applyQuery();
+
+        $collection = $this->applyFilter(false);
 
         $this->addDefaultColumns();
 
@@ -634,39 +597,6 @@ class Grid
     }
 
     /**
-     * Set exporter driver for Grid to export.
-     *
-     * @param $exporter
-     *
-     * @return $this
-     */
-    public function exporter($exporter)
-    {
-        $this->exporter = $exporter;
-
-        return $this;
-    }
-
-    /**
-     * Get the export url.
-     *
-     * @param int  $scope
-     * @param null $args
-     *
-     * @return string
-     */
-    public function getExportUrl($scope = 1, $args = null)
-    {
-        $input = array_merge(request()->all(), Exporter::formatExportQuery($scope, $args));
-
-        if ($constraints = $this->model()->getConstraints()) {
-            $input = array_merge($input, $constraints);
-        }
-
-        return $this->resource().'?'.http_build_query($input);
-    }
-
-    /**
      * Get create url.
      *
      * @return string
@@ -679,40 +609,11 @@ class Grid
             $queryString = http_build_query($constraints);
         }
 
-        return sprintf('%s/create%s',
+        return sprintf(
+            '%s/create%s',
             $this->resource(),
             $queryString ? ('?'.$queryString) : ''
         );
-    }
-
-    /**
-     * If grid show export btn.
-     *
-     * @return bool
-     */
-    public function showExportBtn()
-    {
-        return $this->option('show_exporter');
-    }
-
-    /**
-     * Disable export.
-     *
-     * @return $this
-     */
-    public function disableExport(bool $disable = true)
-    {
-        return $this->option('show_exporter', !$disable);
-    }
-
-    /**
-     * Render export button.
-     *
-     * @return string
-     */
-    public function renderExportButton()
-    {
-        return (new Tools\ExportButton($this))->render();
     }
 
     /**
@@ -842,7 +743,9 @@ class Grid
         ) {
             $this->model()->with($method);
 
-            return $this->addColumn($method, $label)->setRelation(Str::snake($method));
+            return $this->addColumn($method, $label)->setRelation(
+                $this->shouldSnakeAttributes() ? Str::snake($method) : $method
+            );
         }
 
         if ($relation instanceof Relations\HasMany
@@ -852,7 +755,7 @@ class Grid
         ) {
             $this->model()->with($method);
 
-            return $this->addColumn(Str::snake($method), $label);
+            return $this->addColumn($this->shouldSnakeAttributes() ? Str::snake($method) : $method, $label);
         }
 
         return false;
