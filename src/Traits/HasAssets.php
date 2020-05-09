@@ -115,7 +115,7 @@ trait HasAssets
             return self::$css = array_merge(self::$css, (array) $css);
         }
 
-        if (!$css = static::getMinifiedCss()) {
+        if ($css != static::getMinifiedCss()) {
             $css = array_merge(static::$css, static::baseCss());
         }
 
@@ -140,7 +140,7 @@ trait HasAssets
 
         $skin = config('admin.skin', 'skin-blue-light');
 
-        array_unshift(static::$baseCss, "vendor/laravel-admin/AdminLTE/dist/css/skins/{$skin}.min.css");
+        array_unshift(static::$baseCss, "vendor/laravel-admin/AdminLTE/dist/css/skins/{$skin}.css");
 
         return static::$baseCss;
     }
@@ -275,7 +275,8 @@ trait HasAssets
         }
 
         static::$manifestData = json_decode(
-            file_get_contents(public_path(static::$manifest)), true
+            file_get_contents(public_path(static::$manifest)),
+            true
         );
 
         return static::$manifestData[$key];
