@@ -141,7 +141,7 @@ trait HasAssets
 
         $skin = config('admin.skin', 'skin-blue-light');
 
-        array_unshift(static::$baseCss, "vendor/laravel-admin/AdminLTE/dist/css/skins/{$skin}.css");
+        array_push(static::$baseCss, "vendor/laravel-admin/AdminLTE/dist/css/skins/{$skin}.css");
 
         return static::$baseCss;
     }
