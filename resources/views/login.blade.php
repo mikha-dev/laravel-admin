@@ -6,7 +6,7 @@
   <title>{{config('admin.title')}} | {{ trans('admin.login') }}</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-  
+
   @if(!is_null($favicon = Admin::favicon()))
   <link rel="shortcut icon" href="{{$favicon}}">
   @endif
@@ -17,6 +17,8 @@
   <link rel="stylesheet" href="{{ admin_asset("vendor/laravel-admin/font-awesome/css/font-awesome.min.css") }}">
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ admin_asset("vendor/laravel-admin/AdminLTE/dist/css/AdminLTE.min.css") }}">
+  <link rel="stylesheet" href="{{ admin_asset("vendor/laravel-admin/AdminLTE/dist/css/skins/".config('admin.skin').".css") }}">
+
   <!-- iCheck -->
   <link rel="stylesheet" href="{{ admin_asset("vendor/laravel-admin/AdminLTE/plugins/iCheck/square/blue.css") }}">
 
@@ -27,7 +29,7 @@
   <script src="//oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body class="hold-transition login-page" @if(config('admin.login_background_image'))style="background: url({{config('admin.login_background_image')}}) no-repeat;background-size: cover;"@endif>
+<body class="hold-transition login-page {{config('admin.skin')}} {{join(' ', config('admin.layout'))}}" @if(config('admin.login_background_image'))style="background: url({{config('admin.login_background_image')}}) no-repeat;background-size: cover;"@endif>
 <div class="login-box">
   <div class="login-logo">
     <a href="{{ admin_url('/') }}"><b>{{config('admin.name')}}</b></a>
@@ -78,12 +80,27 @@
         <!-- /.col -->
       </div>
       <div class="row">
-        <div class="col-xs-8">
+        <div class="col-xs-12">
           <a class="reset_pass" href="{{route('password.request')}}">Lost your password?</a>
+          @if(config('admin.login_has_register'))<a class="reset_pass" style="float: right" href="{{route('register')}}">Register</a>@endif
         </div>
       </div>
     </form>
-
+    @if(session()->get('status') == 'info')
+    <div class="alert alert-info alert-dismissable">
+        <p>{!! session()->get('message') !!}</p>
+    </div>
+    @endif
+    @if(session()->get('status') =='success')
+    <div class="alert alert-success alert-dismissable">
+        <p>{!! session()->get('message') !!}</p>
+    </div>
+    @endif
+    @if(session()->get('status') =='danger')
+    <div class="alert alert-warning alert-dismissable">
+        <p>{!! session()->get('message') !!}</p>
+    </div>
+    @endif
   </div>
   <!-- /.login-box-body -->
 </div>
