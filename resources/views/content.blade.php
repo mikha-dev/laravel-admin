@@ -2,10 +2,12 @@
 
 @section('content')
     <section class="content-header">
+        @if ($header)
         <h1>
             {!! $header ?: trans('admin.title') !!}
             <small>{!! $description ?: trans('admin.description') !!}</small>
         </h1>
+        @endif
 
         <!-- breadcrumb start -->
         @if ($breadcrumb)
