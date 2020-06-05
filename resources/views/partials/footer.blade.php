@@ -14,5 +14,5 @@
 
     </div>
     <!-- Default to the left -->
-    <strong>Powered by <a href="https://dev4traders.com" target="_blank">dev4traders</a></strong>
+    <strong>Powered by config('admin.powered_by')</strong>
 </footer>
