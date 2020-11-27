@@ -14,5 +14,5 @@
 
     </div>
     <!-- Default to the left -->
-    <strong>Powered by config('admin.powered_by')</strong>
+    <strong>Powered by {!! config('admin.powered_by') !!}</strong>
 </footer>
