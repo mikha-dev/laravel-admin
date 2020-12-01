@@ -22,7 +22,9 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    @if(config('admin.kustomer_enabled'))
     <script src="{{ asset('vendor/kustomer/js/kustomer.js') }}" defer></script>
+    @endif
 </head>
 
 <body class="hold-transition {{config('admin.skin')}} {{join(' ', config('admin.layout'))}}">
@@ -63,6 +65,8 @@
 <!-- REQUIRED JS SCRIPTS -->
 {!! Admin::js() !!}
 
+@if(config('admin.kustomer_enabled'))
 @include('kustomer::kustomer')
+@endif
 </body>
 </html>
