@@ -32,7 +32,7 @@
 <body class="hold-transition login-page {{config('admin.skin')}} {{join(' ', config('admin.layout'))}}" @if(config('admin.login_background_image'))style="background: url({{config('admin.login_background_image')}}) no-repeat;background-size: cover;"@endif>
 <div class="login-box">
   <div class="login-logo">
-    <a href="{{ admin_url('/') }}">{!! config('admin.login_logo', config('admin.name')) !!}}</a>
+    <a href="{{ admin_url('/') }}">{!! config('admin.login_logo', config('admin.name')) !!}</a>
   </div>
   <!-- /.login-logo -->
   <div class="login-box-body">
