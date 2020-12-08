@@ -130,6 +130,7 @@ class MenuController extends Controller
         $form->text('title', trans('admin.title'))->rules('required');
         $form->icon('icon', trans('admin.icon'))->default('fa-bars')->rules('required')->help($this->iconHelp());
         $form->text('uri', trans('admin.uri'));
+        $form->switch('is_target_blank', trans('admin.is_target_blank'))->default(0);
         $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'));
         if ($form->model()->withPermission()) {
             $form->select('permission', trans('admin.permission'))->options($permissionModel::pluck('name', 'slug'));
