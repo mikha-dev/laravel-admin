@@ -69,6 +69,7 @@ return [
     'parent_id'             => 'Parent',
     'icon'                  => 'Icon',
     'uri'                   => 'URI',
+    'is_target_blank'       => 'Target Blank?',
     'operation_log'         => 'Operation log',
     'parent_select_error'   => 'Parent select error',
     'pagination'            => [
