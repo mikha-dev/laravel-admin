@@ -95,7 +95,7 @@ class Radio extends Field
      */
     public function render()
     {
-        $this->script = "$('{$this->getElementClassSelector()}').iCheck({radioClass:'iradio_minimal-blue'});";
+        $this->script = "$('{$this->getElementClassSelector()}').iCheck({radioClass:'iradio_minimal-blue'}); ".$this->script;
 
         $this->addVariables(['options' => $this->options, 'checked' => $this->checked, 'inline' => $this->inline]);
 
