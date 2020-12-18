@@ -81,7 +81,7 @@
       </div>
       <div class="row">
         <div class="col-xs-12">
-          <a class="reset_pass" href="{{route('password.request')}}">Lost your password?</a>
+          @if(config('admin.login_has_lost_password'))<a class="reset_pass" href="{{route('password.request')}}">Lost your password?</a>@endif
           @if(config('admin.login_has_register'))<a class="reset_pass" style="float: right" href="{{route('register')}}">Register</a>@endif
         </div>
       </div>
