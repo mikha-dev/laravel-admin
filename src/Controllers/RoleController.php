@@ -30,6 +30,7 @@ class RoleController extends AdminController
         $grid->column('id', 'ID')->sortable();
         $grid->column('slug', trans('admin.slug'));
         $grid->column('name', trans('admin.name'));
+        $grid->column('start_page', trans('admin.start_page'));
 
         $grid->column('permissions', trans('admin.permission'))->pluck('name')->label();
 
@@ -67,6 +68,7 @@ class RoleController extends AdminController
         $show->field('id', 'ID');
         $show->field('slug', trans('admin.slug'));
         $show->field('name', trans('admin.name'));
+        $show->field('start_page', trans('admin.start_page'));
         $show->field('permissions', trans('admin.permissions'))->as(function ($permission) {
             return $permission->pluck('name');
         })->label();
@@ -92,6 +94,7 @@ class RoleController extends AdminController
 
         $form->text('slug', trans('admin.slug'))->rules('required');
         $form->text('name', trans('admin.name'))->rules('required');
+        $form->text('start_page', trans('admin.start_page'));
         $form->listbox('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
 
         $form->display('created_at', trans('admin.created_at'));
